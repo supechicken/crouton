@@ -5,7 +5,7 @@
 
 NEWTABPAGE='chrome://newtab'
 USAGE="${0##*/} [-n] [URL]
-Open an URL in Chromium OS (requires crouton extension).
+Open an URL in Chromium OS.
 If no URL is specified, opens $NEWTABPAGE instead.
 Switches back to Chromium OS unless -n is specified."
 
@@ -23,11 +23,13 @@ elif [ "$1" = '-h' -o "$1" = '--help' ]; then
     error 0 "$USAGE"
 fi
 
-STATUS="`echo -n U"$*" | websocketcommand`"
-
-if [ "$STATUS" != 'UOK' ]; then
-    error 1 "${STATUS#?}"
-fi
+host-dbus dbus-send --system \
+  --type=method_call \
+  --print-reply \
+  --dest=org.chromium.UrlHandlerService \
+  /org/chromium/UrlHandlerService \
+  org.chromium.UrlHandlerServiceInterface.OpenUrl \
+  "string:https://google.com"
 
 if [ -z "$noswitch" ]; then
     croutoncycle cros
