@@ -3,10 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-NEWTABPAGE='chrome://newtab'
 USAGE="${0##*/} [-n] [URL]
 Open an URL in Chromium OS.
-If no URL is specified, opens $NEWTABPAGE instead.
 Switches back to Chromium OS unless -n is specified."
 
 . "`dirname "$0"`/../installer/functions"
@@ -17,9 +15,7 @@ if [ "$1" = '-n' ]; then
     shift
 fi
 
-if [ -z "$*" ]; then
-    set -- "$NEWTABPAGE"
-elif [ "$1" = '-h' -o "$1" = '--help' ]; then
+if [ -z "$*" -o "$1" = '-h' -o "$1" = '--help' ]; then
     error 0 "$USAGE"
 fi
 
@@ -29,7 +25,7 @@ host-dbus dbus-send --system \
   --dest=org.chromium.UrlHandlerService \
   /org/chromium/UrlHandlerService \
   org.chromium.UrlHandlerServiceInterface.OpenUrl \
-  "string:https://google.com"
+  "string:$*"
 
 if [ -z "$noswitch" ]; then
     croutoncycle cros
